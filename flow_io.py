@@ -16,8 +16,9 @@ def read_flow(path):
             print 'Reading %d x %d flo file' % (w, h)
             data = np.fromfile(f, np.float32, count=2*w*h)
             # Reshape data into 3D array (columns, rows, bands)
-            data2D = np.resize(data, (w[0], h[0], 2))
-            return data2D
+            data2D = np.resize(data, (h[0], w[0], 2))
+            flow=np.stack((data2D[:,:,1],data2D[:,:,0]),-1)
+            return flow
 
 
 
@@ -26,11 +27,12 @@ def write_flow(flow,path):
     with open(path, 'wb') as f:
         magic=np.array([202021.25], np.float32)
         magic.tofile(f)
-        w=np.array([flow.shape[0]], np.int32)
-        h=np.array([flow.shape[1]], np.int32)
+        w=np.array([flow.shape[1]], np.int32)
+        h=np.array([flow.shape[0]], np.int32)
         w.tofile(f)
         h.tofile(f)
-        data = np.resize(flow.astype(np.float32), (2*w[0]*h[0]))
+        flow2=np.stack((flow[:,:,1],flow[:,:,0]),-1)
+        data = np.resize(flow2.astype(np.float32), (2*w[0]*h[0]))
         data.tofile(f)
 
 
